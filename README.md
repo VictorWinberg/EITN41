@@ -1,5 +1,7 @@
 # EITN41 - Advanced Web Security
-> This course has 5 sets of home assignments. Each set consists of 3 subsets, displayed below:
+Run the assignments with `python3`, and the testcases with `pytest -s filename.py`.
+
+This course has 5 sets of home assignments. Each set consists of 3 subsets, displayed below:
 
 - A-type
   - Quite simple, check basic understanding of material
