@@ -14,8 +14,14 @@ def bytes_to_hash(x):
 def int_to_bytes(x, length=4, byteorder='big'):
     return (x).to_bytes(length, byteorder)
 
+def int_to_hex(x):
+    return hex(x)
+
 def hex_to_bytes(x):
     return binascii.unhexlify(x)
+
+def hex_to_int(x):
+    return int(x, 16)
 
 # Debugging
 import pdb
