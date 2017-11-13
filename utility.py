@@ -23,13 +23,6 @@ def hex_to_bytes(x):
 def hex_to_int(x):
     return int(x, 16)
 
-# Debugging
-import pdb
-debug = input("Debug (y/N)? ")
-
-if(debug == 'y' or debug == 'yes' or debug == 'Yes'):
-    pdb.set_trace()
-
 # Test Cases
 def test_int_to_bytes():
     res_bytes = int_to_bytes(500)
@@ -50,3 +43,11 @@ def test_str_to_hash():
     res_hash = bytes_to_int(bytes_to_hash(hex_to_bytes('fedcba9876543210')))
     ans_hash = 946229717077375328329532411653585908948565005770
     assert res_hash == ans_hash
+
+if __name__ == "__main__":
+    # Debugging
+    import pdb
+    debug = input("Debug (y/N)? ")
+
+    if(debug == 'y' or debug == 'yes' or debug == 'Yes'):
+        pdb.set_trace()
