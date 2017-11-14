@@ -5,7 +5,6 @@ import numpy
 import os
 import time
 from sys import argv
-from random import randint
 
 def micromint(u, k, c):
     """ Makes MicroMint coins.
@@ -20,8 +19,8 @@ def micromint(u, k, c):
     tries = 0
     while len(coins) < c:
         x = os.urandom(u)
-        y = sha1(x, math.floor(u / 8))
-        i = bytes_to_int(y)
+        y = sha1(x, math.floor(u / 4))
+        i = int(y, 16)
         bins[i].append(x)
         if len(bins[i]) == k:
             coins.append(bins[i])
@@ -37,10 +36,7 @@ def mean_and_width(x):
     return mean, width
 
 def sha1(x, b):
-    return hashlib.sha1(x).digest()[:b]
-
-def bytes_to_int(x, byteorder='big'):
-    return int.from_bytes(x, byteorder)
+    return hashlib.sha1(x).hexdigest()[:b]
 
 if __name__ == "__main__":
     if len(argv) == 4:
