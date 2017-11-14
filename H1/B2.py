@@ -19,8 +19,8 @@ def micromint(u, k, c):
     tries = 0
     while len(coins) < c:
         x = os.urandom(u)
-        y = sha1(x, math.floor(u / 4))
-        i = int(y, 16)
+        y = hash(x, u)
+        i = (int(y, 16) if u % 4 == 0 else y)
         bins[i].append(x)
         if len(bins[i]) == k:
             coins.append(bins[i])
@@ -35,8 +35,12 @@ def mean_and_width(x):
     width = 2 * _lambda * s / math.sqrt(n) if n > 1 else float('inf')
     return mean, width
 
-def sha1(x, b):
-    return hashlib.sha1(x).hexdigest()[:b]
+def hash(x, u):
+    h = hashlib.sha1(x).hexdigest()
+    if u % 4 == 0:
+        return h[:u//4]
+    else:
+        return int(h, 16) % 2**u
 
 if __name__ == "__main__":
     if len(argv) == 1:
