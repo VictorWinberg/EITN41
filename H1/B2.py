@@ -2,6 +2,7 @@ import hashlib
 import binascii
 import math
 import numpy
+import time
 import os
 from sys import argv
 from random import randint
@@ -49,14 +50,18 @@ if __name__ == "__main__":
     elif len(argv) == 5:
         u, k, c, ci_width = map(int, argv[1:])
         all_tries = []
+        t = time.time()
         while True:
             tries, coins = micromint(u, k, c)
             all_tries.append(tries)
             mean, width = mean_and_width(all_tries)
+            if time.time() - t > 30:
+                t = time.time()
+                print(mean, width)
             if width <= ci_width:
                 break
 
-        print(mean)
+        print(mean, width)
 
     # Debugging
     import pdb
