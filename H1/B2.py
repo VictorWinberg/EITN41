@@ -1,6 +1,7 @@
 import hashlib
 import binascii
 import math
+import numpy
 import os
 from sys import argv
 from random import randint
@@ -17,7 +18,7 @@ def micromint(u, k, c):
     coins = []
     tries = 0
     while len(coins) < c:
-        x = os.urandom(2*u)
+        x = os.urandom(u)
         y = sha1(x, math.floor(u / 8))
         i = bytes_to_int(y)
         bins[i].append(x)
@@ -25,6 +26,14 @@ def micromint(u, k, c):
             coins.append(bins[i])
         tries += 1
     return tries, coins
+
+def mean_and_width(x):
+    mean = numpy.mean(x)
+    s = numpy.std(x)
+    n = len(x)
+    _lambda = 3.66
+    width = 2 * _lambda * s / math.sqrt(n) if n > 1 else float('inf')
+    return mean, width
 
 def sha1(x, b):
     return hashlib.sha1(x).digest()[:b]
@@ -34,11 +43,20 @@ def bytes_to_int(x, byteorder='big'):
 
 if __name__ == "__main__":
     if len(argv) == 4:
-        tries, coins = micromint(*map(int, argv[1:]))
+        u, k, c = map(int, argv[1:])
+        tries, coins = micromint(u, k, c)
+        print(tries)
     elif len(argv) == 5:
-        result = [micromint(*map(int, argv[1:4])) for x in range(int(argv[4]))]
-        tries, coins = list(zip(*result))
-        print('x_mean', sum(tries)/len(tries))
+        u, k, c, ci_width = map(int, argv[1:])
+        all_tries = []
+        while True:
+            tries, coins = micromint(u, k, c)
+            all_tries.append(tries)
+            mean, width = mean_and_width(all_tries)
+            if width <= ci_width:
+                break
+
+        print(mean)
 
     # Debugging
     import pdb
