@@ -4,9 +4,9 @@ def Luhn_check_digit(account_number):
     account_number = account_number.replace('X', '0')
     numbers = list(map(int, account_number))[::-1]
     double_even = [x * 2 if i % 2 == 1 else x for (i, x) in enumerate(numbers)]
-    sum_digits = [sum(map(int, str(x))) for x in double_even]
+    sub_digits = [x - 9 if x > 9 else x for x in double_even]
 
-    total = sum(sum_digits)
+    total = sum(sub_digits)
     check_digit = total * 9 % 10
 
     if index % 2 == 1:

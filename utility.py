@@ -49,5 +49,5 @@ if __name__ == "__main__":
     import pdb
     debug = input("Debug (y/N)? ")
 
-    if(debug == 'y' or debug == 'yes' or debug == 'Yes'):
+    if(debug == 'y' or debug == 'yes'):
         pdb.set_trace()
