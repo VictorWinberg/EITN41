@@ -1,4 +1,3 @@
-
 def Luhn_check_digit(account_number):
     index = account_number[::-1].find('X')
     account_number = account_number.replace('X', '0')
@@ -16,12 +15,12 @@ def Luhn_check_digit(account_number):
 
     return check_digit
 
+if __name__ == "__main__":
+    digits = []
+    while True:
+        try:
+            digits.append(Luhn_check_digit(input('')))
+        except EOFError:
+            break
 
-digits = []
-while True:
-    try:
-        digits.append(Luhn_check_digit(input('')))
-    except EOFError:
-        break
-
-print('Digits:', ''.join(map(str, digits)))
+    print('Digits:', ''.join(map(str, digits)))

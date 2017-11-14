@@ -39,6 +39,9 @@ def sha1(x, b):
     return hashlib.sha1(x).hexdigest()[:b]
 
 if __name__ == "__main__":
+    if len(argv) == 1:
+        argv = ['B2.py', '16', '2', '1', '22']
+
     if len(argv) == 4:
         u, k, c = map(int, argv[1:])
         tries, coins = micromint(u, k, c)
@@ -57,7 +60,7 @@ if __name__ == "__main__":
             if width <= ci_width:
                 break
 
-        print(mean, width)
+        print(mean, width, len(all_tries))
 
     # Debugging
     import pdb
