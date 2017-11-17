@@ -102,10 +102,16 @@ if __name__ == "__main__":
     priv_key = modinv(e, totient(p, q))
     print('e:', e, '\nn:', n, '\nd:', priv_key)
 
-    print('\nsign:', blind_signature('Give 10 coins!', 7, e, n, priv_key), '\n')
+    m = 'Give 10 coins!'
+    blind_sign = blind_signature(m, 7, e, n, priv_key)
+    print('\nm:', m, '\nsign:', blind_sign)
+    print('verified:', verify(hash(m), blind_sign, e, n), '\n')
 
-    k, ID, XY, quads, B, B_client = 8, 1234, {}, {}, [], []
-
+    # Improved protocol, withdrawal
+    # Alice chooses 2k quadruples
+    ID = 1234
+    print('ID:', ID)
+    k, XY, quads, B, B_client = 8, {}, {}, [], []
     for i in range(2 * k):
         a, c, d, r = [ randrange(100, 1000) for i in range(4) ]
         x, y = toInt(hash(a + c)), toInt(hash(a ^ ID + d))
@@ -114,34 +120,45 @@ if __name__ == "__main__":
         quads[B_i] = a, c, d, r
         XY[B_i] = x, y
 
+    # Bank uses cut-and-choose
     B_verify = sample(B, len(B) // 2)
     B_sign = [ B_i for B_i in B if B_i not in B_verify ]
 
+    # Bank verifies half of the B values
     B_verified = []
-
     for B_i in B_verify:
         a, c, d, r = quads[B_i]
         x, y = toInt(hash(a + c)), toInt(hash(a ^ ID + d))
         B_verified.append(B_i == blind(x * y, r, e, n))
 
-    print('verified:', all(B_i is True for B_i in B_verified))
+    print('Bank verified:', all(B_i is True for B_i in B_verified))
 
+    # Bank then signs the other half of the B values
     B_signed = []
-
     for B_i in B_sign:
         B_signed.append(int(sign(B_i, n, priv_key), 16))
 
-    B_blind_signature = hex(reduce(lambda x, y: x * y % n, B_signed))
+    S_blind = hex(reduce(lambda x, y: x * y % n, B_signed))
 
+    # Alice calculates R and S without blind values
     R_arr = []
     for B_i in B_sign:
         R_arr.append(quads[B_i][3])
 
     R = reduce(lambda x, y: x * y % n, R_arr)
-    print('R:', R)
 
-    B_signature = modinv_x(B_blind_signature, R, n)
-    print('S:', B_signature)
+    S = modinv_x(S_blind, R, n)
+    print('S:', S)
+
+    # Merchant verifies Alice by getting x, y values from Alice
+    F_XY_arr = []
+    for B_i in B_sign:
+        x, y = XY[B_i]
+        F_XY_arr.append(x * y % n)
+
+    F_XY = hex(reduce(lambda x, y: x * y % n, F_XY_arr))
+
+    print('Merchant verified:', verify(F_XY, S, e, n))
 
     # Debugging
     import pdb
