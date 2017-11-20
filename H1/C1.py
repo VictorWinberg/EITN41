@@ -104,14 +104,14 @@ if __name__ == "__main__":
         p, q = 671998030559713968361666935769, 282174488599599500573849980909
         e = 17
 
-    # Get the value n and private key priv_key (aka d)
+    # Get the value n and private key d
     n = get_n(p, q)
-    priv_key = modinv(e, totient(p, q))
-    print('e:', e, '\nn:', n, '\nd:', priv_key)
+    d = modinv(e, totient(p, q))
+    print('e:', e, '\nn:', n, '\nd:', d)
 
     # Blind signature
     m = 'Give 10 coins!'
-    blind_sign = blind_signature(m, 7, e, n, priv_key)
+    blind_sign = blind_signature(m, 7, e, n, d)
     print('\nm:', m, '\nsign:', blind_sign)
     print('verified:', verify(hash(m), blind_sign, e, n), '\n')
 
@@ -123,11 +123,11 @@ if __name__ == "__main__":
     print('ID:', ID)
     k, XY, quadruples, B = 8, [], [], []
     for i in range(2 * k):
-        a, c, d, r = [ randrange(n // 10, n) for i in range(4) ]
-        x, y = toInt(hash(a + c)), toInt(hash(a ^ ID + d))
+        a, c, _d, r = [ randrange(n // 10, n) for i in range(4) ]
+        x, y = toInt(hash(a + c)), toInt(hash(a ^ ID + _d))
         b = pow(r, e) * f(x, y) % n
         B.append(b)
-        quadruples.append([a, c, d, r])
+        quadruples.append([a, c, _d, r])
         XY.append([x, y])
 
     # Bank uses cut-and-choose
@@ -137,14 +137,14 @@ if __name__ == "__main__":
     # Bank verifies half of the B values
     B_bank = [0] * len(B)
     for i in R:
-        a, c, d, r = quadruples[i]
-        x, y = toInt(hash(a + c)), toInt(hash(a ^ ID + d))
+        a, c, _d, r = quadruples[i]
+        x, y = toInt(hash(a + c)), toInt(hash(a ^ ID + _d))
         B_bank[i] = pow(r, e) * f(x, y) % n
 
     print('Bank verified:', all(B[i] == B_bank[i] for i in R))
 
     # Bank then signs the other half of the B values
-    S_blind_arr = [pow(B[i], priv_key, n) for i in notR]
+    S_blind_arr = [pow(B[i], d, n) for i in notR]
     S_blind = mul_sum(S_blind_arr)
 
     # Alice calculates R and S without blind values
