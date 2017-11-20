@@ -125,7 +125,7 @@ if __name__ == "__main__":
     for i in range(2 * k):
         a, c, d, r = [ randrange(n // 10, n) for i in range(4) ]
         x, y = toInt(hash(a + c)), toInt(hash(a ^ ID + d))
-        b = pow(r, e) * x * y % n
+        b = pow(r, e) * f(x, y) % n
         B.append(b)
         quadruples.append([a, c, d, r])
         XY.append([x, y])
@@ -139,7 +139,7 @@ if __name__ == "__main__":
     for i in R:
         a, c, d, r = quadruples[i]
         x, y = toInt(hash(a + c)), toInt(hash(a ^ ID + d))
-        B_bank[i] = pow(r, e) * x * y % n
+        B_bank[i] = pow(r, e) * f(x, y) % n
 
     print('Bank verified:', all(B[i] == B_bank[i] for i in R))
 
