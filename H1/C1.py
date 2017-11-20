@@ -80,6 +80,12 @@ def int_to_byte(x, byteorder='big'):
 def toInt(x):
     return int(x, 16)
 
+def mul_sum(array):
+    return reduce(lambda x, y: x * y % n, array)
+
+def f(x, y):
+    return x * y
+
 def find_prime_factors(n):
     i = 2
     p = n
@@ -98,67 +104,62 @@ if __name__ == "__main__":
         p, q = 671998030559713968361666935769, 282174488599599500573849980909
         e = 17
 
+    # Get the value n and private key priv_key (aka d)
     n = get_n(p, q)
     priv_key = modinv(e, totient(p, q))
     print('e:', e, '\nn:', n, '\nd:', priv_key)
 
+    # Blind signature
     m = 'Give 10 coins!'
     blind_sign = blind_signature(m, 7, e, n, priv_key)
     print('\nm:', m, '\nsign:', blind_sign)
     print('verified:', verify(hash(m), blind_sign, e, n), '\n')
 
+    #
     # Improved protocol, withdrawal
+    #
     # Alice chooses 2k quadruples
     ID = 1234
     print('ID:', ID)
-    k, XY, quads, B, B_client = 8, {}, {}, [], []
+    k, XY, quadruples, B = 8, [], [], []
     for i in range(2 * k):
-        a, c, d, r = [ randrange(100, 1000) for i in range(4) ]
+        a, c, d, r = [ randrange(n // 10, n) for i in range(4) ]
         x, y = toInt(hash(a + c)), toInt(hash(a ^ ID + d))
-        B_i = blind(x * y, r, e, n)
-        B.append(B_i)
-        quads[B_i] = a, c, d, r
-        XY[B_i] = x, y
+        b = pow(r, e) * x * y % n
+        B.append(b)
+        quadruples.append([a, c, d, r])
+        XY.append([x, y])
 
     # Bank uses cut-and-choose
-    B_verify = sample(B, len(B) // 2)
-    B_sign = [ B_i for B_i in B if B_i not in B_verify ]
+    R = sample(range(len(B)), len(B) // 2)
+    notR = [ i for i in range(len(B)) if i not in R ]
 
     # Bank verifies half of the B values
-    B_verified = []
-    for B_i in B_verify:
-        a, c, d, r = quads[B_i]
+    B_bank = [0] * len(B)
+    for i in R:
+        a, c, d, r = quadruples[i]
         x, y = toInt(hash(a + c)), toInt(hash(a ^ ID + d))
-        B_verified.append(B_i == blind(x * y, r, e, n))
+        B_bank[i] = pow(r, e) * x * y % n
 
-    print('Bank verified:', all(B_i is True for B_i in B_verified))
+    print('Bank verified:', all(B[i] == B_bank[i] for i in R))
 
     # Bank then signs the other half of the B values
-    B_signed = []
-    for B_i in B_sign:
-        B_signed.append(int(sign(B_i, n, priv_key), 16))
-
-    S_blind = hex(reduce(lambda x, y: x * y % n, B_signed))
+    S_blind_arr = [pow(B[i], priv_key, n) for i in notR]
+    S_blind = mul_sum(S_blind_arr)
 
     # Alice calculates R and S without blind values
-    R_arr = []
-    for B_i in B_sign:
-        R_arr.append(quads[B_i][3])
+    R_arr = [quadruples[i][3] for i in notR]
+    R = mul_sum(R_arr)
 
-    R = reduce(lambda x, y: x * y % n, R_arr)
-
-    S = modinv_x(S_blind, R, n)
-    print('S:', S)
+    # S = modinv_x(S_blind, R, n)
+    S = modinv(R, n) * S_blind % n
+    print('S:', hex(S))
 
     # Alice verifies by adding all x, y values included in sign
-    F_XY_arr = []
-    for B_i in B_sign:
-        x, y = XY[B_i]
-        F_XY_arr.append(x * y % n)
+    F_arr = [f(*XY[b]) % n for b in notR]
+    F = mul_sum(F_arr)
 
-    F_XY = hex(reduce(lambda x, y: x * y % n, F_XY_arr))
-
-    print('Alice verifies:', verify(F_XY, S, e, n))
+    print('Alice verifies:', F == pow(S, e, n))
 
     # Debugging
     import pdb
