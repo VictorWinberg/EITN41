@@ -14,7 +14,7 @@ def modinv_x(x, a, n):
     x = toInt(x) if type(x) != int else x
     return hex(modinv(a, n) * x % n)
 
-# (a * x) == 1 (mod n) => x = modinv(a) (mod n)
+# (a * a_inv) == 1 (mod n) => a_inv = modinv(a) (mod n)
 # copied from https://en.wikibooks.org/wiki/Algorithm_Implementation/Mathematics/Extended_Euclidean_algorithm#Python
 def modinv(a, n):
     g, x, _ = euc_algorithm(a, n)
@@ -134,7 +134,7 @@ if __name__ == "__main__":
     R = sample(range(len(B)), len(B) // 2)
     notR = [ i for i in range(len(B)) if i not in R ]
 
-    # Bank verifies half of the B values
+    # Bank verifies half of the R values
     B_bank = [0] * len(B)
     for i in R:
         a, c, _d, r = quadruples[i]
@@ -143,16 +143,16 @@ if __name__ == "__main__":
 
     print('Bank verified:', all(B[i] == B_bank[i] for i in R))
 
-    # Bank then signs the other half of the B values
+    # Bank then signs the other half of the R values
     S_blind_arr = [pow(B[i], d, n) for i in notR]
     S_blind = mul_sum(S_blind_arr)
 
-    # Alice calculates R and S without blind values
+    # Alice calculates S without blind values
     R_arr = [quadruples[i][3] for i in notR]
-    R = mul_sum(R_arr)
+    _R = mul_sum(R_arr)
 
     # S = modinv_x(S_blind, R, n)
-    S = modinv(R, n) * S_blind % n
+    S = modinv(_R, n) * S_blind % n
     print('S:', hex(S))
 
     # Alice verifies by adding all x, y values included in sign
