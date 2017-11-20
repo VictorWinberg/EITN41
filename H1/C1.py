@@ -150,7 +150,7 @@ if __name__ == "__main__":
     S = modinv_x(S_blind, R, n)
     print('S:', S)
 
-    # Merchant verifies Alice by getting x, y values from Alice
+    # Alice verifies by adding all x, y values included in sign
     F_XY_arr = []
     for B_i in B_sign:
         x, y = XY[B_i]
@@ -158,7 +158,7 @@ if __name__ == "__main__":
 
     F_XY = hex(reduce(lambda x, y: x * y % n, F_XY_arr))
 
-    print('Merchant verified:', verify(F_XY, S, e, n))
+    print('Alice verifies:', verify(F_XY, S, e, n))
 
     # Debugging
     import pdb
