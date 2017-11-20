@@ -126,9 +126,7 @@ if __name__ == "__main__":
         a, c, _d, r = [ randrange(n // 10, n) for i in range(4) ]
         x, y = toInt(hash(a + c)), toInt(hash(a ^ ID + _d))
         b = pow(r, e) * f(x, y) % n
-        B.append(b)
-        quadruples.append([a, c, _d, r])
-        XY.append([x, y])
+        B.append(b), quadruples.append([a, c, _d, r]), XY.append([x, y])
 
     # Bank uses cut-and-choose
     R = sample(range(len(B)), len(B) // 2)
@@ -144,8 +142,8 @@ if __name__ == "__main__":
     print('Bank verified:', all(B[i] == B_bank[i] for i in R))
 
     # Bank then signs the other half of the R values
-    S_blind_arr = [pow(B[i], d, n) for i in notR]
-    S_blind = mul_sum(S_blind_arr)
+    B_sign = [B[i] for i in notR]
+    S_blind = pow(mul_sum(B_sign), d, n)
 
     # Alice calculates S without blind values
     R_arr = [quadruples[i][3] for i in notR]
