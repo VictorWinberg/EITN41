@@ -123,7 +123,7 @@ if __name__ == "__main__":
     print('ID:', ID)
     k, XY, quadruples, B = 8, [], [], []
     for i in range(2 * k):
-        a, c, _d, r = [ randrange(n // 10, n) for i in range(4) ]
+        a, c, _d, r = [ randrange(1, 10 ** 20) for i in range(4) ]
         x, y = toInt(hash(a + c)), toInt(hash(a ^ ID + _d))
         b = pow(r, e) * f(x, y) % n
         B.append(b), quadruples.append([a, c, _d, r]), XY.append([x, y])
