@@ -14,7 +14,7 @@ def ipadress_to_int(ipadress):
 testcap = open(input(), 'rb')
 capfile = savefile.load_savefile(testcap, layers=2, verbose=True)
 
-nazir_adress, mix_adress, partners = input(), input(), int(input())
+nazir_adress, mix_adress, m = input(), input(), int(input())
 
 packets = [ {
     'src': get_ip_src(pkt),
@@ -34,7 +34,7 @@ for packet in packets:
     batch[-1].append(p[isMix])
 
     prevMix = isMix
-    print ('{}\t{}'.format(packet['src'], packet['dst']))
+    # print ('{}\t{}'.format(packet['src'], packet['dst']))
 
 group_batch = list(zip(batch[::2], batch[1::2]))
 nazir_batch = []
@@ -44,11 +44,17 @@ for group in group_batch:
     if nazir_adress in src:
         nazir_batch.append(dst)
 
-# chain_batch = list(chain(*nazir_batch))
-# count_batch = [ (chain_batch.count(x), x) for x in set(chain_batch) ]
-# sort_batch = sorted(count_batch)[::-1]
-#
-# print(sort_batch[:partners])
-# print('# of messages', len(nazir_batch))
-#
-# print(sum(map(ipadress_to_int, [ x[1] for x in sort_batch[:partners] ])))
+disjoint_batch = [ set(nazir_batch[0]) ]
+for batch in nazir_batch:
+    if all(set(batch).isdisjoint(disjoint) for disjoint in disjoint_batch):
+        disjoint_batch.append(set(batch))
+
+joint_batch = [set(batch) for batch in nazir_batch if set(batch) not in disjoint_batch]
+for suspects in disjoint_batch:
+    for innocents in joint_batch:
+        for blameless in suspects.intersection(innocents):
+            suspects.remove(blameless)
+
+print(len(disjoint_batch), disjoint_batch)
+
+# print(sum(map(ipadress_to_int, disjoint_batch)))
