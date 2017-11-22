@@ -14,7 +14,7 @@ def ipadress_to_int(ipadress):
 testcap = open(input(), 'rb')
 capfile = savefile.load_savefile(testcap, layers=2, verbose=True)
 
-nazir_adress, mix_adress, m = input(), input(), int(input())
+target_adress, mix_adress, m = input(), input(), int(input())
 
 packets = [ {
     'src': get_ip_src(pkt),
@@ -22,39 +22,41 @@ packets = [ {
     for pkt in capfile.packets
 ]
 
-batch = []
+batches = []
 prevMix = 1
 
 for packet in packets:
     isMix = int(packet['src'] == mix_adress)
-    if(prevMix != isMix):
-        batch.append([])
+    if(prevMix != isMix): batches.append([])
 
     p = [ packet['src'], packet['dst'] ]
-    batch[-1].append(p[isMix])
+    batches[-1].append(p[isMix])
 
     prevMix = isMix
     # print ('{}\t{}'.format(packet['src'], packet['dst']))
 
-group_batch = list(zip(batch[::2], batch[1::2]))
-nazir_batch = []
+batches = list(zip(batches[::2], batches[1::2]))
+R_all = []
 
-for group in group_batch:
-    src, dst = group
-    if nazir_adress in src:
-        nazir_batch.append(dst)
+for batch in batches:
+    src, dst = batch
+    if target_adress in src:
+        R_all.append(dst)
 
-disjoint_batch = [ set(nazir_batch[0]) ]
-for batch in nazir_batch:
-    if all(set(batch).isdisjoint(disjoint) for disjoint in disjoint_batch):
-        disjoint_batch.append(set(batch))
+R_disjoint = [ set(R_all[0]) ]
+for R_i in R_all:
+    if all(set(R_i).isdisjoint(R_j) for R_j in R_disjoint):
+        R_disjoint.append(set(R_i))
 
-joint_batch = [set(batch) for batch in nazir_batch if set(batch) not in disjoint_batch]
-for suspects in disjoint_batch:
-    for innocents in joint_batch:
-        for blameless in suspects.intersection(innocents):
-            suspects.remove(blameless)
+R_rest = [ R for R in R_all if set(R) not in R_disjoint ]
+print(len(R_rest), len(R_disjoint), len(R_all))
 
-print(len(disjoint_batch), disjoint_batch)
+for i, R_i in enumerate(R_disjoint):
+    for R in R_all:
+        if not set(R).isdisjoint(R_i) and all(set(R).isdisjoint(R_j) for R_j in R_disjoint if set(R_i) not in R_disjoint):
+            R_disjoint[i] = set(R_i).intersection(R)
 
-# print(sum(map(ipadress_to_int, disjoint_batch)))
+R_disjoint = list(set().union(*R_disjoint))
+print(m, len(R_disjoint))
+
+print(sum(map(ipadress_to_int, R_disjoint)))
