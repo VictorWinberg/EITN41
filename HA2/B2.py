@@ -18,20 +18,18 @@ def read_packets(filepath):
 
 def learning_phase(packets, target_adress, mix_adress, m):
     sources, destinations = packets
-    R, R_all, target = [], [], 0
+    R, R_all, i, last = [], [], 0, False
 
-    while True:
-        target = sources.index(target_adress, target)
-        mix_start = sources.index(mix_adress, target)
-        try:
-            mix_end = destinations.index(mix_adress, mix_start)
-        except ValueError:
-            break
+    while not last:
+        i = sources.index(target_adress, i)
+        mix_start = sources.index(mix_adress, i)
+        try: mix_end = destinations.index(mix_adress, mix_start)
+        except ValueError: last = True
         r = set(destinations[mix_start:mix_end])
         R_all.append(r)
         if all(r.isdisjoint(ri) for ri in R):
             R.append(r)
-        target = mix_end
+        i = mix_end
 
     R_other = [ r for r in R_all if r not in R ]
     return R, R_other
