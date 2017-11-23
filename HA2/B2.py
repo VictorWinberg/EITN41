@@ -48,15 +48,16 @@ for R_i in R_all:
     if all(set(R_i).isdisjoint(R_j) for R_j in R_disjoint):
         R_disjoint.append(set(R_i))
 
-R_rest = [ R for R in R_all if set(R) not in R_disjoint ]
-print(len(R_rest), len(R_disjoint), len(R_all))
+R_rest = [ set(R) for R in R_all if set(R) not in R_disjoint ]
 
-for i, R_i in enumerate(R_disjoint):
-    for R in R_all:
-        if not set(R).isdisjoint(R_i) and all(set(R).isdisjoint(R_j) for R_j in R_disjoint if set(R_i) not in R_disjoint):
-            R_disjoint[i] = set(R_i).intersection(R)
+for R in R_rest:
+    for i, R_i in enumerate(R_disjoint):
+        R_i_disjoint = R & R_i == set()
+        R_j_disjoint = [R & R_j == set() for j, R_j in enumerate(R_disjoint) if i != j]
+        if not R_i_disjoint and all(R_j_disjoint):
+            R_disjoint[i] &= set(R)
 
 R_disjoint = list(set().union(*R_disjoint))
-print(m, len(R_disjoint))
+print('m:', m, ', found:', len(R_disjoint), 'of', len(R_all))
 
 print(sum(map(ipadress_to_int, R_disjoint)))
