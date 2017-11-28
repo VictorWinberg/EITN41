@@ -1,24 +1,25 @@
 from functools import reduce
 
+def input_ints():
+  return list(map(int, input().split(',')))
+
 def mul_sum(array):
   return reduce(lambda x, y: x * y, array)
 
-def threshold_scheme(k, n):
-  f1 = f([13, 8, 11, 1, 5])
-  print(f1(2))
-  print(f1(3))
-  print(f1(4))
-  print(f1(5))
-  print(f1(6))
-  print(f1(7))
-  print(f1(8))
-
 def lagrange_interpolation(t, f):
-  return sum([f[i](i) * mul_sum([j / (j - i) for j in t if not i == j]) for i in t])
-
+  fz = [f[i] * mul_sum([j / (j - i) for j in t if not i == j]) for i in t]
+  return int(sum(fz))
 
 def f(c):
   return lambda x: sum([c[i] * x ** i for i in range(len(c))])
 
-threshold_scheme(4, 6)
-print(lagrange_interpolation([2, 3, 8], {2: f([1]), 3: f([2]), 8: f([3]) }))
+coefficients = input_ints()
+f1 = f(coefficients)
+
+n_points = input_ints()
+f_1 = sum([f1(1), *n_points])
+
+t = [1] + input_ints()
+points = [f_1] + input_ints()
+
+print(lagrange_interpolation(t, { t[i]: points[i] for i in range(len(t)) }))
