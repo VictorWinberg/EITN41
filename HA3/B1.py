@@ -1,56 +1,61 @@
 import binascii
 import hashlib
 import os
+import matplotlib.pyplot as plt
 from functools import reduce
 
-def rand(K = 16):
-  return os.urandom(K // 8)
-
-def hash(v, k, X):
+def commitment(v, k, X):
   h = hashlib.sha1(v+k).hexdigest()
-  return int(h, 16) % 2**X
+  return int(h, 16) % 2 ** X
 
-def toByte(x, byteorder='big'):
-  length = x.bit_length() // 8 + 1
-  return x.to_bytes(length, byteorder)
+def toByte(x, byteorder = 'big', K = 16):
+  return x.to_bytes(K // 8, byteorder)
 
 def binding_probability(X, K = 16):
-  x = hash(b'0', rand(), X)
-  h = -1
+  x = commitment(b'0', os.urandom(K // 8), X)
 
   for i in range(2 ** K):
-    h = hash(b'1', toByte(i), X)
-    if x == h:
+    if x == commitment(b'1', toByte(i), X):
       return 1
 
   return 0
 
 def concealing_probability(X, K = 16):
-  v = b'0'
-  x = hash(v, rand(), X)
+  x = commitment(b'0', os.urandom(K // 8), X)
   correct, incorrect = 0, 0
 
   for i in range(2 ** K):
-    h0 = hash(b'0', toByte(i), X)
-    h1 = hash(b'1', toByte(i), X)
-
-    if x == h0: correct += 1
-    if x == h1: incorrect += 1
-
-  if correct + incorrect == 0:
-    return 0
+    if x == commitment(b'0', toByte(i), X):
+      correct += 1
+    if x == commitment(b'1', toByte(i), X):
+      incorrect += 1
 
   return correct / (correct + incorrect)
 
+size = 30
+res = 10
+bindings, concealings = [], []
 
-X = 20
-sim = 10
+for X in range(size):
+  binding = [binding_probability(X) for i in range(res)]
+  bindings.append(sum(binding) / len(binding))
 
-binding = [binding_probability(X) for i in range(sim)]
-print(sum(binding) / len(binding))
+  concealing = [concealing_probability(X) for i in range(res)]
+  concealings.append(sum(concealing) / len(concealing))
 
-concealing = [concealing_probability(X) for i in range(sim)]
-print(sum(concealing) / len(concealing))
+  print(X / size)
+
+plt.plot(range(size), bindings, label='binding')
+plt.plot(range(size), concealings, label='concealing')
+
+plt.xlabel('X')
+
+plt.axhline(y = 0, color='k')
+plt.axvline(x = 0, color='k')
+
+plt.legend(loc = 'upper right')
+
+plt.show()
 
 # Debugging
 import pdb

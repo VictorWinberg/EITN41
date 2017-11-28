@@ -4,15 +4,17 @@ def mul_sum(array):
   return reduce(lambda x, y: x * y, array)
 
 def threshold_scheme(k, n):
-    f1 = f([20, 20, 11, 6])
-    print(f1(2))
-    print(f1(3))
-    print(f1(4))
-    print(f1(5))
-    print(f1(6))
+  f1 = f([13, 8, 11, 1, 5])
+  print(f1(2))
+  print(f1(3))
+  print(f1(4))
+  print(f1(5))
+  print(f1(6))
+  print(f1(7))
+  print(f1(8))
 
 def lagrange_interpolation(t, f):
-    return sum([f[i](i) * mul_sum([j / (j - i) for j in t if not i == j]) for i in t])
+  return sum([f[i](i) * mul_sum([j / (j - i) for j in t if not i == j]) for i in t])
 
 
 def f(c):
