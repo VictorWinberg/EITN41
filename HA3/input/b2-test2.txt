@@ -1,0 +1,4 @@
+coefficients  = 20,18,13,19,15
+shared_points = 34,48,45,39,24
+participants  = 2,3,5,6
+points        = 1908,7677,50751,101700

@@ -1,7 +1,7 @@
 from functools import reduce
 
 def input_ints():
-  return list(map(int, input().split(',')))
+  return list(map(int, input().split('=')[1].split(',')))
 
 def mul_sum(array):
   return reduce(lambda x, y: x * y, array)
