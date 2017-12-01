@@ -1,8 +1,6 @@
-import binascii
 import hashlib
 import os
 import matplotlib.pyplot as plt
-from functools import reduce
 
 def commitment(v, k, X):
   h = hashlib.sha1(v+k).hexdigest()
@@ -32,8 +30,7 @@ def concealing_probability(X, K = 16):
 
   return correct / (correct + incorrect)
 
-size = 30
-res = 10
+size, res = 30, 2
 bindings, concealings = [], []
 
 for X in range(size):
