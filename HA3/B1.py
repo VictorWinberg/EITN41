@@ -30,7 +30,7 @@ def concealing_probability(X, K = 16):
 
   return correct / (correct + incorrect)
 
-size, res = 30, 2
+size, res = 30, 10
 bindings, concealings = [], []
 
 for X in range(size):
