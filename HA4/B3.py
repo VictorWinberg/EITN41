@@ -1,6 +1,6 @@
 import math
 import hashlib
-import binascii
+from binascii import unhexlify,hexlify
 from functools import reduce
 
 def I2OSP(x, xLen):
@@ -35,15 +35,15 @@ def MGF1(mgfSeed, maskLen, Hash=hashlib.sha1, hLen=20):
   Error: "mask too long"
   """
   if maskLen > 2 ** 32 * hLen: raise Exception("mask too long")
-  mgfSeed = binascii.unhexlify(mgfSeed)
+  mgfSeed = unhexlify(mgfSeed)
 
   T = bytes()
   for counter in range(math.ceil(maskLen / hLen)):
     C = I2OSP(counter, 4)
     T += Hash(mgfSeed + C).digest()
 
-  return binascii.hexlify(T[:maskLen]).decode('utf-8')
-  
+  return hexlify(T[:maskLen]).decode('utf-8')
+
 mgfSeed = '0123456789abcdef'
 maskLen = 30
 
