@@ -27,31 +27,29 @@ def I2OSP(x, xLen):
 def MGF1(mgfSeed, maskLen, Hash=sha1, hLen=20):
   """ Mask Generation Function based on a hash function
   Input:
-    mgfSeed (hexadecimal) - mask seed
-    maskLen (decimal)     - mask length in bytes
+    mgfSeed (bytes)   - mask seed
+    maskLen (decimal) - mask length in bytes
   Output:
-    mask (hexadecimal)
+    mask (bytes)
   Error: "mask too long"
   """
   if maskLen > 2 ** 32 * hLen: raise Exception("mask too long")
-  mgfSeed = unhexlify(mgfSeed)
 
   T = bytes()
   for counter in range(math.ceil(maskLen / hLen)):
     C = I2OSP(counter, 4)
     T += Hash(mgfSeed + C).digest()
 
-  return hexlify(T[:maskLen]).decode('utf-8')
+  return T[:maskLen]
 
 def OAEP_encode(M, seed, Hash=sha1, hLen=20, k=128):
   """ EME-OAEP encoding
   Input:
-    M - the message to be encoded
-    seed
+    M    (bytes) - the message to be encoded
+    seed (bytes)
   Output:
-    EM - the encoded message
+    EM   (bytes) - the encoded message
   """
-  M, seed = map(unhexlify, (M, seed))
   L = b''
   lHash = Hash(L).digest()
 
@@ -59,59 +57,49 @@ def OAEP_encode(M, seed, Hash=sha1, hLen=20, k=128):
   DB = lHash + PS + I2OSP(1, 1) + M
 
   seed # given
-  dbMask = unhexlify(MGF1(hexlify(seed), k - hLen - 1))
+  dbMask = MGF1(seed, k - hLen - 1)
   maskedDB = bytes(a ^ b for a,b in zip(DB, dbMask))
-  seedMask = unhexlify(MGF1(hexlify(maskedDB), hLen))
+  seedMask = MGF1(maskedDB, hLen)
   maskedSeed = bytes(a ^ b for a,b in zip(seed, seedMask))
 
   EM = I2OSP(0, 1) + maskedSeed + maskedDB
-  return hexlify(EM).decode('utf-8')
+  return EM
 
-def OAEP_decode(EM):
+def OAEP_decode(EM, Hash=sha1, hLen=20, k=128):
   """ EME-OAEP decoding
   Input:
-    EM - the encoded message to be decoded
+    EM (bytes) - the encoded message to be decoded
   Output:
-    M - the decoded message
+    M  (bytes) - the decoded message
   """
-  # a.  If the label L is not provided, let L be the empty string.
-  #     Let lHash = Hash(L), an octet string of length hLen (see
-  #     the note in Section 7.1.1).
-  # 
-  # b.  Separate the encoded message EM into a single octet Y, an
-  #     octet string maskedSeed of length hLen, and an octet
-  #     string maskedDB of length k - hLen - 1 as
-  # 
-  #        EM = Y || maskedSeed || maskedDB.
-  # 
-  # c.  Let seedMask = MGF(maskedDB, hLen).
-  # 
-  # d.  Let seed = maskedSeed \xor seedMask.
-  # 
-  # e.  Let dbMask = MGF(seed, k - hLen - 1).
-  # 
-  # f.  Let DB = maskedDB \xor dbMask.
-  # 
-  # g.  Separate DB into an octet string lHash' of length hLen, a
-  #     (possibly empty) padding string PS consisting of octets
-  #     with hexadecimal value 0x00, and a message M as
-  # 
-  #        DB = lHash' || PS || 0x01 || M.
-  # 
-  #     If there is no octet with hexadecimal value 0x01 to
-  #     separate PS from M, if lHash does not equal lHash', or if
-  #     Y is nonzero, output "decryption error" and stop.  (See
-  #     the note below.)
+  L = b''
+  lHash = Hash(L).digest()
 
-mgfSeed = '0123456789abcdef'
-maskLen = 30
-T = '18a65e36189833d99e55a68dedda1cce13a494c947817d25dc80d9b4586a'
+  Y, maskedSeed, maskedDB = EM[:1], EM[1:hLen + 1], EM[hLen + 1:]
+  if not Y == b'\x00': raise Exception("decryption error")
 
-M = 'fd5507e917ecbe833878'
-seed = '1e652ec152d0bfcd65190ffc604c0933d0423381'
-EM = '0000255975c743f5f11ab5e450825d93b52a160aeef9d3778a18b7aa067f90b2178406fa1e1bf77f03f86629dd5607d11b9961707736c2d16e7c668b367890bc6ef1745396404ba7832b1cdfb0388ef601947fc0aff1fd2dcd279dabde9b10bfc51f40e13fb29ed5101dbcb044e6232e6371935c8347286db25c9ee20351ee82'
+  seedMask = MGF1(maskedDB, hLen)
+  seed = bytes(a ^ b for a,b in zip(maskedSeed, seedMask))
+  dbMask = MGF1(seed, k - hLen - 1)
 
-calc_T = MGF1(mgfSeed, maskLen)
-print('correct:', T == calc_T, calc_T)
-calc_EM = OAEP_encode(M, seed)
-print('correct:', calc_EM == EM, calc_EM)
+  DB = bytes(a ^ b for a,b in zip(maskedDB, dbMask))
+  flag = next((i for i, x in enumerate(DB[hLen:]) if x), None)
+  if not flag: raise Exception("decryption error")
+  M = DB[hLen + flag + 1:]
+  return M
+
+def hprint(t, b):
+  print(t + ':', hexlify(b).decode('utf-8'), '\n')
+
+if __name__ == '__main__':
+  mgfSeed, maskLen = unhexlify(input().split('=')[1]), int(input().split('=')[1])
+  M, seed, EM = map(unhexlify, [input().split('=')[1] for i in range(3)])
+
+  calc_T = MGF1(mgfSeed, maskLen)
+  hprint('T', calc_T)
+
+  calc_EM = OAEP_encode(M, seed)
+  hprint('EM', calc_EM)
+
+  calc_M = OAEP_decode(EM)
+  hprint('M', calc_M)
