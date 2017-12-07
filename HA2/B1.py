@@ -1,9 +1,3 @@
-import binascii
-import hashlib
-from sys import argv
-from random import randrange, sample
-from functools import reduce
-
 def DCnet(SA, SB, DA, DB, M, b):
   if b == 0:
     D = SA ^ SB
