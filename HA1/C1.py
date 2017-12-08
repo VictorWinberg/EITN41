@@ -74,7 +74,7 @@ def byte_to_int(x, byteorder='big'):
   return int.from_bytes(x, byteorder)
 
 def int_to_byte(x, byteorder='big'):
-  length = x.bit_length() // 8 + 1
+  length = (x.bit_length() + 7) // 8
   return x.to_bytes(length, byteorder)
 
 def toInt(x):
