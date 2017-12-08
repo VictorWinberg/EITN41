@@ -18,7 +18,7 @@ def timing_attack(name, grade, size=20, retries=10):
       curr_char = hex_string[j]
       params['signature'] = ''.join(signature) + curr_char
 
-      R = [requests.get(url, params, verify=False) for i in range(retries)]
+      R = [requests.get(url, params, verify=False) for retry in range(retries)]
       t = min([r.elapsed.total_seconds() for r in R])
 
       if(t > max_t):
