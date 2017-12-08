@@ -92,8 +92,8 @@ def hprint(t, b):
   print(t + ':', hexlify(b).decode('utf-8'), '\n')
 
 if __name__ == '__main__':
-  mgfSeed, maskLen = unhexlify(input().split('=')[1]), int(input().split('=')[1])
-  M, seed, EM = map(unhexlify, [input().split('=')[1] for i in range(3)])
+  mgfSeed, maskLen = unhexlify(input().split('=')[1].strip()), int(input().split('=')[1])
+  M, seed, EM = map(unhexlify, [input().split('=')[1].strip() for i in range(3)])
 
   calc_T = MGF1(mgfSeed, maskLen)
   hprint('T', calc_T)
