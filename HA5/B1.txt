@@ -1,0 +1,8 @@
+openssl rsa -check -in censored.pem
+openssl asn1parse -in censored.pem
+
+recreate asn to asn.cnf
+
+openssl asn1parse -genconf asn.cnf -out asn.der
+
+openssl rsa -in asn.der -inform der -out asn.pem
