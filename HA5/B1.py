@@ -21,7 +21,7 @@ def totient(p, q):
 
 if __name__ == "__main__":
   if len(argv) == 1:
-    argv = ['B1.py', 'input/censored.pem', 'input/message.b64']
+    argv = ['B1.py', 'input/b1/censored.pem', 'input/b1/message.b64']
 
   pem_file, ciphertext_b64 = argv[1:]
   pem_file = open(pem_file,'rb')
