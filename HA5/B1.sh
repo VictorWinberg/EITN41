@@ -38,3 +38,6 @@ printf "\nDecrypted message: "
 
 # Decrypt the encrypted message with rsa private key
 openssl rsautl -decrypt -in output/message.txt -inkey output/key.pem
+
+# Remove output folder
+rm -rf output
