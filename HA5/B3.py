@@ -27,28 +27,31 @@ def der_encode(x):
     # signed representation of two’s complement
     hex_x = '00' + hex_x
 
-  l = hex2(len(hex_x))
-  if len(hex_x) >= 0b10000000:
+  # Tag 0x02 INTEGER
+  der = '02{}{}'.format(length_encode(hex_x), hex_x)
+  return der
+
+def length_encode(x):
+  length = hex2(len(x) // 2)
+  if len(x) >= 0b10000000:
     # Long definite form
-    l_encode = '8' + str(len(l) // 2) + l
+    return '8' + str(len(length) // 2) + length
   else:
     # Short definite form
-    l_encode = '{:02x}'.format(len(hex_x) // 2)
-  # Tag 0x02 INTEGER
-  der = '02{}{}'.format(l_encode, hex_x)
-  return der
+    return '{:02x}'.format(len(x) // 2)
 
 def der_sequence(L):
   seq = ''.join(L)
   # Tag 0x30 SEQUENCE
-  return unhexlify('30' + hex2(len(seq) // 2) + seq)
+  return unhexlify('30' + length_encode(seq) + seq)
 
 if __name__ == "__main__":
   if len(argv) == 1:
     print("missing params: py B3.py der/rsa [optional]")
 
   elif argv[1] == 'der':
-    raise Exception("not implemented")
+    x = int(input('x (decimal): '))
+    print(der_encode(x))
 
   elif argv[1] == 'rsa':
     e, p, q = map(int, [ input(x + ': ') for x in ['e', 'p', 'q'] ])
@@ -63,5 +66,4 @@ if __name__ == "__main__":
 
     DER = [ der_encode(param) for param in params ]
     rsa_seq = der_sequence(DER)
-
-    print(b64encode(rsa_seq).decode('utf-8'))
+    print(b64encode(rsa_seq).decode('utf-8').strip())
