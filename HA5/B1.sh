@@ -1,42 +1,32 @@
+censored_key=${1-'input/b1/censored.pem'}
+secret_msg=${2-'input/b1/message.b64'}
+
+# Make output folder
+mkdir -p output
+
 # Optional. Check whats wrong
-openssl rsa -check -in input/b1/censored.pem -noout
+echo "0. [Optional] RSA check censored key: "
+openssl rsa -check -in $censored_key -noout
 
 # Parse censored private key to asn1 and 
 # create a asn1 structured rsa_key with p, q and e
-echo
-echo " === Please insert and calculate values needed into asn1 stucture input/b1/asn.cnf === "
-openssl asn1parse -in input/b1/censored.pem | while ((i++)); read line; do
-  if [[ ($i == 4) || ($i == 6) || ($i == 7) ]]; then
-    IFS=':' read -ra keys <<< "$line"
-    for j in "${!keys[@]}"; do
-      if [[ $j == 3 ]]; then
-        if [[ $i == 4 ]]; then
-          echo "e (hex): ${keys[$j]}"
-        elif [[ $i == 6 ]]; then
-          echo "q (hex): ${keys[$j]}"
-        elif [[ $i == 7 ]]; then
-          echo "q (hex): ${keys[$j]}"
-        fi
-      fi
-    done
-  fi
-done
-echo " === End of values === "
-echo
+echo "1. asn1parse censored key to python"
+openssl asn1parse -in $censored_key | python3 asncreate.py
 
 # Parse the generated asn1 rsa_key to der encoding
-mkdir -p output
-openssl asn1parse -genconf input/b1/asn.cnf -out output/asn.der -noout
+echo "3. generate encoded RSA key with der encoding"
+openssl asn1parse -genconf output/asn.cnf -out output/asn.der -noout
 
-# Parse the der encoded rsa_key to pem format
+# Parse the der encoded rsa_key to pem encoding
+echo "4. parse the der encoded RSA key to pem encoding"
 openssl rsa -in output/asn.der -inform der -out output/key.pem
 
 # Decode the base64 encoded message
-openssl base64 -d -in input/b1/message.b64 > output/message.txt
-
-printf "\nDecrypted message: "
+echo "5. decode the base64 encoded message"
+openssl base64 -d -in $secret_msg > output/message.txt
 
 # Decrypt the encrypted message with rsa private key
+echo "6. decrypt the encrypted message"
 openssl rsautl -decrypt -in output/message.txt -inkey output/key.pem
 
 # Remove output folder
