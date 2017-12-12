@@ -1,5 +1,22 @@
 from binascii import unhexlify
 from base64 import b64encode
+from sys import argv
+
+def modinv(a, n):
+  g, x, _ = euc_algorithm(a, n)
+  if g == 1:
+    return x % n
+
+def euc_algorithm(a, n):
+  x0, x1, y0, y1 = 1, 0, 0, 1
+  while n != 0:
+    q, a, n = a // n, n, a % n
+    x0, x1 = x1, x0 - q * x1
+    y0, y1 = y1, y0 - q * y1
+  return a, x0, y0
+
+def totient(p, q):
+  return (p - 1) * (q - 1)
 
 def hex2(x):
   return '{}{:x}'.format('0' * (len(hex(x)) % 2), x)
@@ -27,37 +44,24 @@ def der_sequence(L):
   return unhexlify('30' + hex2(len(seq) // 2) + seq)
 
 if __name__ == "__main__":
-  X = [
-    0,
-    6610823582647678679,
-    65537,
-    3920879998437651233,
-    2530368937,
-    2612592767,
-    2013885953,
-    1498103913,
-    1490876340
-  ]
+  if len(argv) == 1:
+    print("missing params: py B3.py der/rsa [optional]")
 
-  DER_correct = [
-    '020100',
-    '02085bbe5d05d47d76d7',
-    '0203010001',
-    '02083669c395b9cf7321',
-    '02050096d25da9',
-    '0205009bb9007f',
-    '020478097601',
-    '0204594b4069',
-    '020458dcf7b4'
-  ]
+  elif argv[1] == 'der':
+    raise Exception("not implemented")
 
-  DER_calc = [ der_encode(x) for x in X ]
-  [ print(DER_calc[i], DER_calc[i] == DER_correct[i]) for i in range(len(X)) ]
+  elif argv[1] == 'rsa':
+    e, p, q = map(int, [ input(x + ': ') for x in ['e', 'p', 'q'] ])
 
-  rsa_seq = der_sequence(DER_calc)
+    n = p * q
+    d = modinv(e, totient(p, q))
+    e1 = d % (p - 1)
+    e2 = d % (q - 1)
+    coeff = modinv(q, p)
 
-  print(b64encode(rsa_seq).decode('utf-8'))
+    params = [0, n, e, d, p, q, e1, e2, coeff]
 
-  # x = 161863091426469985001358176493540241719547661391527305133576978132107887717901972545655469921112454527920502763568908799229786534949082469136818503316047702610019730504769581772016806386178260077157969035841180863069299401978140025225333279044855057641079117234814239380100022886557142183337228046784055073741
+    DER = [ der_encode(param) for param in params ]
+    rsa_seq = der_sequence(DER)
 
-  # print(der_encode(x))
+    print(b64encode(rsa_seq).decode('utf-8'))
