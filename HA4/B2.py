@@ -32,6 +32,7 @@ def timing_attack(name, grade, size=20, retries=10):
 
     if not T[i] < T[i+1]:
       i = max(i - 1, 0)
+      T[i+1] = float('inf')
       retries += 1
       print('{}/{} redo with retries: {}'.format(i, size, retries))
     else:
