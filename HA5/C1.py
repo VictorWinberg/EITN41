@@ -48,21 +48,22 @@ def rec_hash(identity, n):
   residue = jacobi(int(a_hex, 16), n)
   return a_hex if residue == 1 else rec_hash(a_byte, n)
 
+if __name__ == '__main__':
+  p, q, identity = [ input(x).split(':')[1].strip() for x in ['p', 'q', 'id'] ]
 
-k_bry = b'walterwhite@crypto.sec'
-p = 0x9240633d434a8b71a013b5b00513323f
-q = 0xf870cfcd47e6d5a0598fc1eb7e999d1b
+  p, q = map(lambda x: int(x, 16), (p, q))
+  identity = identity.encode()
 
-n = p * q
-a = int(rec_hash(k_bry, n), 16)
+  n = p * q
+  a = int(rec_hash(identity, n), 16)
 
-r = pow(a, (n + 5 - (p + q)) // 8, n)
+  r = pow(a, (n + 5 - (p + q)) // 8, n)
 
-print('r', hex2(r))
+  print('\nr:  ', hex2(r))
 
-lines = read_buffer()
+  lines = read_buffer()
 
-decrypt = [ jacobi(int(s, 16) + 2*r, n) for s in lines ]
+  decrypt = [ jacobi(int(s, 16) + 2*r, n) for s in lines ]
 
-decode = int(''.join(map(lambda x: '1' if x == 1 else '0', decrypt)), 2)
-print('msg:', decode)
+  decode = int(''.join(map(lambda x: '1' if x == 1 else '0', decrypt)), 2)
+  print('msg:', decode)
