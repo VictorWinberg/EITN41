@@ -23,6 +23,15 @@ def hex_to_bytes(x):
 def hex_to_int(x):
   return int(x, 16)
 
+def bin_to_int(x):
+  return int(x, 2)
+
+def bin_to_hex(x):
+  return hex(bin_to_int(x))
+
+def hex_to_bin(x):
+  return '{0:08b}'.format(int(x, 16))
+
 # Test Cases
 def test_int_to_bytes():
   res_bytes = int_to_bytes(500)
