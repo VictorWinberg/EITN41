@@ -49,7 +49,7 @@ def rec_hash(identity, n):
   return a_hex if residue == 1 else rec_hash(a_byte, n)
 
 if __name__ == '__main__':
-  p, q, identity = [ input(x).split(':')[1].strip() for x in ['p', 'q', 'id'] ]
+  p, q, identity = [ input().split(':')[1].strip() for x in ['p', 'q', 'id'] ]
 
   p, q = map(lambda x: int(x, 16), (p, q))
   identity = identity.encode()
@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
   r = pow(a, (n + 5 - (p + q)) // 8, n)
 
-  print('\nr:  ', hex2(r))
+  print('\nr: ', hex2(r))
 
   lines = read_buffer()
 
