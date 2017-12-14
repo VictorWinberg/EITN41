@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
   r = pow(a, (n + 5 - (p + q)) // 8, n)
 
-  print('\nr: ', hex2(r))
+  print('r:', hex2(r))
 
   lines = read_buffer()
 
