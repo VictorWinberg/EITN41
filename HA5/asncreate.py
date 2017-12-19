@@ -39,7 +39,7 @@ if __name__ == "__main__":
   coeff = modinv(q, p)
 
   with open('input/b1/asn.cnf', 'r') as f:
-      content = f.read()
+    content = f.read()
 
   output = content.format(0, n, e, d, p, q, e1, e2, coeff)
 
