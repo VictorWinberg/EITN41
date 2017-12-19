@@ -23,7 +23,7 @@ openssl rsa -in output/asn.der -inform der -out output/key.pem
 
 # Decode the base64 encoded message
 echo "5. decode the base64 encoded message"
-openssl base64 -d -in $secret_msg > output/message.txt
+openssl base64 -d -in $secret_msg -out output/message.txt
 
 # Decrypt the encrypted message with rsa private key
 echo "6. decrypt the encrypted message"
