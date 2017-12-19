@@ -24,7 +24,7 @@ def read_buffer():
   return lines
 
 def getasn1value(line):
-  return int(line.split(':')[3], 16)
+  return int(line.split('INTEGER')[1].strip()[1:], 16)
 
 if __name__ == "__main__":
   print('2. generate asn1 file in python')
