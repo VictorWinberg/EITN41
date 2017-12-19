@@ -43,6 +43,6 @@ if __name__ == "__main__":
 
   output = content.format(0, n, e, d, p, q, e1, e2, coeff)
 
-  fh = open('output/asn.cnf',"w")
+  fh = open('output/asn.cnf', 'w')
   fh.write(output)
   fh.close()
