@@ -2,7 +2,7 @@ censored_key=${1-'input/b1/censored.pem'}
 secret_msg=${2-'input/b1/message.b64'}
 
 # Make output folder
-mkdir -p output
+mkdir output
 
 # Optional. Check whats wrong
 echo "0. [Optional] RSA check censored key: "
