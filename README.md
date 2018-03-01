@@ -1,4 +1,6 @@
-# FJUO52 - Bewbodfe Xfc Tfdvsjuz
+# FJUO52
+Security - Advanced Course | Computer Science
+
 Run the assignments with `python3`, and the testcases with `pytest -s filename.py`.
 
 This course has 5 sets of home assignments. Each set consists of 3 subsets, displayed below:
